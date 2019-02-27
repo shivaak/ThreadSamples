@@ -18,35 +18,45 @@ public class OddEvenThread {
 	private static void printNumber() {
 
 		OddEvenThread p = new OddEvenThread();
-		
+
 		Thread odd = new Thread(() -> {
 			for(int i=1;i<=100;i+=2) {
-				p.print(i);
+				synchronized (p) {
+					System.out.println(i);
+					p.notify();
+					try {
+						p.wait();
+						//Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		});
-		
+
 		Thread even = new Thread(() -> {
-			for(int i=2;i<=100;i+=2) {
-				p.print(i);
-			}
-		});
-		
-		odd.start();
-		even.start();
-
-	}
-
-	private void print(int n) {
-		synchronized (this) {
-			System.out.println(n);
-			this.notifyAll();
 			try {
-				this.wait();
+				synchronized (p) {
+					p.wait(100);
+					for(int i=2;i<=100;i+=2) {
+						System.out.println(i);
+						p.notify();
+						if(i<100)
+							p.wait();
+						//Thread.sleep(1000);
+					}
+				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		});
+		even.start();
+		odd.start();
+	
+
 	}
+
 
 }
