@@ -11,24 +11,7 @@ package com.learning;
 
 class Printer {
 	public void display(String msg) {
-		synchronized (this) {
-			for(int i = 1;i<=10;i++) {
-				System.out.print(msg);
-				if(Thread.currentThread().getName().equals("pong")) {
-					System.out.println();
-				}
-				this.notify();
-				try {
-					this.wait();
-					Thread.sleep(300);					
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
-
-		}
+		System.out.print(msg);
 	}
 }
 
@@ -42,16 +25,61 @@ public class PingPong {
 		Printer p = new Printer();
 
 		Thread ping = new Thread(() -> {
-			p.display("[ Ping ");
+			
+			
+			synchronized (p) {
+				for(int i = 1;i<=10;i++) {
+					p.display("[ Ping ");
+					p.notify();
+					
+					try {
+						p.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+
+			}
+			
+		
 		}, "ping");
 
 		Thread pong = new Thread(() -> {
-			p.display("Pong ]");			
-		}, "pong");
+			
+			synchronized (p) {
+				/*try {
+					p.wait();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
+				for(int i = 1;i<=10;i++) {
+					p.display("Pong ]");		
+					System.out.println();
+					p.notify();
+					try {
+						if(i<10)
+						p.wait();
+						//Thread.sleep(300);					
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
 
+			}
+			
+				
+		}, "pong");
+		
+		
 		ping.start();
 		pong.start();
 
+		//p.notifyAll();
 		try {
 			ping.join();
 			pong.join();
