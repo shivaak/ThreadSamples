@@ -49,12 +49,12 @@ public class PingPong {
 		Thread pong = new Thread(() -> {
 			
 			synchronized (p) {
-				/*try {
-					p.wait();
+				try {
+					p.wait(12000);
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}*/
+				}
 				for(int i = 1;i<=10;i++) {
 					p.display("Pong ]");		
 					System.out.println();
@@ -75,12 +75,13 @@ public class PingPong {
 				
 		}, "pong");
 		
-		
-		ping.start();
-		pong.start();
-
-		//p.notifyAll();
 		try {
+		
+		pong.start();
+		Thread.sleep(10000);
+		ping.start();
+		//p.notifyAll();
+		
 			ping.join();
 			pong.join();
 		} catch (InterruptedException e) {
